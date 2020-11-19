@@ -28,6 +28,7 @@ func newAccessPoliciesService(basePath string, client *Client) *AccessPoliciesSe
 
 type AccessPolicy struct {
 	ID         string      `json:"id"`
+	Type       string      `json:"type"`
 	PolicyData interface{} `json:"policyData"`
 }
 
