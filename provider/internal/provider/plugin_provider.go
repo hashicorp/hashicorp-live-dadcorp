@@ -36,7 +36,8 @@ func (p *provider) GetProviderSchema(ctx context.Context, req *tfprotov5.GetProv
 			},
 		},
 		ResourceSchemas: map[string]*tfprotov5.Schema{
-			"dadcorp_vault_cluster": (&vault{}).schema(),
+			"dadcorp_terraform_workspace": (&terraform{}).schema(),
+			"dadcorp_vault_cluster":       (&vault{}).schema(),
 		},
 		DataSourceSchemas: map[string]*tfprotov5.Schema{},
 	}, nil
@@ -136,6 +137,11 @@ func (p *provider) StopProvider(ctx context.Context, req *tfprotov5.StopProvider
 // resource methods
 func (p *provider) ValidateResourceTypeConfig(ctx context.Context, req *tfprotov5.ValidateResourceTypeConfigRequest) (*tfprotov5.ValidateResourceTypeConfigResponse, error) {
 	switch req.TypeName {
+	case "dadcorp_terraform_workspace":
+		res := &terraform{
+			clients: p.clientFactory,
+		}
+		return res.ValidateResourceTypeConfig(ctx, req)
 	case "dadcorp_vault_cluster":
 		res := &vault{
 			clients: p.clientFactory,
@@ -155,6 +161,11 @@ func (p *provider) ValidateResourceTypeConfig(ctx context.Context, req *tfprotov
 
 func (p *provider) UpgradeResourceState(ctx context.Context, req *tfprotov5.UpgradeResourceStateRequest) (*tfprotov5.UpgradeResourceStateResponse, error) {
 	switch req.TypeName {
+	case "dadcorp_terraform_workspace":
+		res := &terraform{
+			clients: p.clientFactory,
+		}
+		return res.UpgradeResourceState(ctx, req)
 	case "dadcorp_vault_cluster":
 		res := &vault{
 			clients: p.clientFactory,
@@ -174,6 +185,11 @@ func (p *provider) UpgradeResourceState(ctx context.Context, req *tfprotov5.Upgr
 
 func (p *provider) ReadResource(ctx context.Context, req *tfprotov5.ReadResourceRequest) (*tfprotov5.ReadResourceResponse, error) {
 	switch req.TypeName {
+	case "dadcorp_terraform_workspace":
+		res := &terraform{
+			clients: p.clientFactory,
+		}
+		return res.ReadResource(ctx, req)
 	case "dadcorp_vault_cluster":
 		res := &vault{
 			clients: p.clientFactory,
@@ -193,6 +209,11 @@ func (p *provider) ReadResource(ctx context.Context, req *tfprotov5.ReadResource
 
 func (p *provider) PlanResourceChange(ctx context.Context, req *tfprotov5.PlanResourceChangeRequest) (*tfprotov5.PlanResourceChangeResponse, error) {
 	switch req.TypeName {
+	case "dadcorp_terraform_workspace":
+		res := &terraform{
+			clients: p.clientFactory,
+		}
+		return res.PlanResourceChange(ctx, req)
 	case "dadcorp_vault_cluster":
 		res := &vault{
 			clients: p.clientFactory,
@@ -212,6 +233,11 @@ func (p *provider) PlanResourceChange(ctx context.Context, req *tfprotov5.PlanRe
 
 func (p *provider) ApplyResourceChange(ctx context.Context, req *tfprotov5.ApplyResourceChangeRequest) (*tfprotov5.ApplyResourceChangeResponse, error) {
 	switch req.TypeName {
+	case "dadcorp_terraform_workspace":
+		res := &terraform{
+			clients: p.clientFactory,
+		}
+		return res.ApplyResourceChange(ctx, req)
 	case "dadcorp_vault_cluster":
 		res := &vault{
 			clients: p.clientFactory,
@@ -231,6 +257,11 @@ func (p *provider) ApplyResourceChange(ctx context.Context, req *tfprotov5.Apply
 
 func (p *provider) ImportResourceState(ctx context.Context, req *tfprotov5.ImportResourceStateRequest) (*tfprotov5.ImportResourceStateResponse, error) {
 	switch req.TypeName {
+	case "dadcorp_terraform_workspace":
+		res := &terraform{
+			clients: p.clientFactory,
+		}
+		return res.ImportResourceState(ctx, req)
 	case "dadcorp_vault_cluster":
 		res := &vault{
 			clients: p.clientFactory,
