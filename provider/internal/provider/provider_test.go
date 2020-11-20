@@ -13,8 +13,9 @@ var testProviders = map[string]func() (tfprotov5.ProviderServer, error){
 	"dadcorp": func() (tfprotov5.ProviderServer, error) {
 		ctx := context.Background()
 		sdkv2 := New().GRPCProvider
+		plugin := NewPlugin
 
-		factory, err := tfmux.NewSchemaServerFactory(ctx, sdkv2)
+		factory, err := tfmux.NewSchemaServerFactory(ctx, sdkv2, plugin)
 		if err != nil {
 			return nil, err
 		}

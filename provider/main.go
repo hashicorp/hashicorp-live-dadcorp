@@ -15,8 +15,9 @@ import (
 func main() {
 	ctx := context.Background()
 	sdkv2 := provider.New().GRPCProvider
+	plugin := provider.NewPlugin
 
-	factory, err := tfmux.NewSchemaServerFactory(ctx, sdkv2)
+	factory, err := tfmux.NewSchemaServerFactory(ctx, sdkv2, plugin)
 	if err != nil {
 		log.Println(err.Error())
 		os.Exit(1)
