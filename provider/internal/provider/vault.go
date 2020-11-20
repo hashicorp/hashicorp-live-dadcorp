@@ -4,6 +4,7 @@ import (
 	"context"
 
 	dadcorp "dadcorp.dev/client"
+	"github.com/hashicorp/go-cty/cty"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
@@ -25,7 +26,34 @@ func resourceVaultCluster() *schema.Resource {
 			"region": {
 				Type:     schema.TypeString,
 				Required: true,
-				// TODO: validate
+				ValidateDiagFunc: func(i interface{}, path cty.Path) diag.Diagnostics {
+					str, ok := i.(string)
+					if !ok {
+						return diag.Diagnostics{
+							{
+								Severity:      diag.Error,
+								Summary:       "Invalid type",
+								Detail:        "Value must be a string.",
+								AttributePath: path,
+							},
+						}
+					}
+					for _, region := range []string{
+						"us-va-1", "us-va-2",
+					} {
+						if region == str {
+							return nil
+						}
+					}
+					return diag.Diagnostics{
+						{
+							Severity:      diag.Error,
+							Summary:       "Invalid region",
+							Detail:        `Region must be one of "us-va-1" or "us-va-2".`,
+							AttributePath: path,
+						},
+					}
+				},
 			},
 			"default_lease_ttl": {
 				Type:     schema.TypeString,

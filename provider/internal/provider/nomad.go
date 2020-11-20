@@ -2,6 +2,8 @@ package provider
 
 import (
 	"context"
+	"errors"
+	"log"
 
 	dadcorp "dadcorp.dev/client"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
@@ -17,6 +19,44 @@ func resourceNomadCluster() *schema.Resource {
 		Importer: &schema.ResourceImporter{
 			StateContext: schema.ImportStatePassthroughContext,
 		},
+		CustomizeDiff: func(ctx context.Context, diff *schema.ResourceDiff, meta interface{}) error {
+			_, bindAddrNew := diff.GetChange("bind_addr")
+			bindAddr, ok := bindAddrNew.(string)
+			if !ok {
+				return errors.New("bind_addr must be a string")
+			}
+			if bindAddr == "" {
+				return nil
+			}
+			log.Println("[DEBUG]", "paddy test", bindAddr)
+			_, advertiseList := diff.GetChange("advertise")
+			advertise := advertiseList.([]interface{})
+			if len(advertise) < 1 {
+				return nil
+			}
+			adHTTP, ok := advertise[0].(map[string]interface{})["http"].(string)
+			if !ok {
+				return errors.New("advertise.0.http must be a string")
+			}
+			if adHTTP != "" {
+				return errors.New("advertise.0.http can't be set if bind_addr is set")
+			}
+			adRPC, ok := advertise[0].(map[string]interface{})["rpc"].(string)
+			if !ok {
+				return errors.New("advertise.0.rpc must be a string")
+			}
+			if adRPC != "" {
+				return errors.New("advertise.0.rpc can't be set if bind_addr is set")
+			}
+			adSerf, ok := advertise[0].(map[string]interface{})["serf"].(string)
+			if !ok {
+				return errors.New("advertise.0.serf must be a string")
+			}
+			if adSerf != "" {
+				return errors.New("advertise.0.serf can't be set if bind_addr is set")
+			}
+			return nil
+		},
 		Schema: map[string]*schema.Schema{
 			"name": {
 				Type:     schema.TypeString,
@@ -29,29 +69,24 @@ func resourceNomadCluster() *schema.Resource {
 			"bind_addr": {
 				Type:     schema.TypeString,
 				Optional: true,
-				Computed: true,
 			},
 			"advertise": {
 				Type:     schema.TypeList,
 				MaxItems: 1,
 				Optional: true,
-				Computed: true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"http": {
 							Type:     schema.TypeString,
 							Optional: true,
-							Computed: true,
 						},
 						"rpc": {
 							Type:     schema.TypeString,
 							Optional: true,
-							Computed: true,
 						},
 						"serf": {
 							Type:     schema.TypeString,
 							Optional: true,
-							Computed: true,
 						},
 					},
 				},

@@ -11,6 +11,7 @@ import (
 type ConsulCluster struct {
 	ID        string                 `json:"id"`
 	Name      string                 `json:"name"`
+	BindAddr  string                 `json:"bindAddr"`
 	Addresses ConsulClusterAddresses `json:"addresses"`
 	Ports     ConsulClusterPorts     `json:"ports"`
 }

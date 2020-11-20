@@ -6,8 +6,10 @@ import (
 	"errors"
 
 	dadcorp "dadcorp.dev/client"
+	"github.com/hashicorp/go-cty/cty"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/nsf/jsondiff"
 )
 
 func resourceAccessPolicy() *schema.Resource {
@@ -23,12 +25,68 @@ func resourceAccessPolicy() *schema.Resource {
 			"policy_data": {
 				Type:     schema.TypeString,
 				Required: true,
-				// TODO: diffsuppress
+				DiffSuppressFunc: func(_, o, n string, _ *schema.ResourceData) bool {
+					opts := jsondiff.DefaultJSONOptions()
+					diff, _ := jsondiff.Compare([]byte(o), []byte(n), &opts)
+					return diff == jsondiff.FullMatch
+				},
+				ValidateDiagFunc: func(val interface{}, path cty.Path) diag.Diagnostics {
+					if _, ok := val.(string); !ok {
+						return diag.Diagnostics{
+							{
+								Severity:      diag.Error,
+								Summary:       "Invalid type",
+								Detail:        "Value must be a string.",
+								AttributePath: path,
+							},
+						}
+					}
+					var i interface{}
+					err := json.Unmarshal([]byte(val.(string)), &i)
+					if err != nil {
+						return diag.Diagnostics{
+							{
+								Severity:      diag.Error,
+								Summary:       "Invalid value",
+								Detail:        "Value must be valid JSON.",
+								AttributePath: path,
+							},
+						}
+					}
+					return nil
+				},
 			},
 			"type": {
 				Type:     schema.TypeString,
 				Required: true,
-				// TODO: validate
+				ValidateDiagFunc: func(val interface{}, path cty.Path) diag.Diagnostics {
+					str, ok := val.(string)
+					if !ok {
+						return diag.Diagnostics{
+							{
+								Severity:      diag.Error,
+								Summary:       "Invalid type",
+								Detail:        "Value must be a string.",
+								AttributePath: path,
+							},
+						}
+					}
+					for _, valid := range []string{
+						"terraform", "consul",
+						"nomad", "vault"} {
+						if valid == str {
+							return nil
+						}
+					}
+					return diag.Diagnostics{
+						{
+							Severity:      diag.Error,
+							Summary:       "Invalid value",
+							Detail:        `Value must be one of "consul", "nomad", "terraform", or "vault".`,
+							AttributePath: path,
+						},
+					}
+				},
 			},
 		},
 	}
@@ -84,7 +142,7 @@ func resourceAccessPolicyCreate(ctx context.Context, d *schema.ResourceData, met
 	}
 	d.SetId(resp.ID)
 	d.Set("type", resp.Type)
-	d.Set("policy_data", policyData)
+	d.Set("policy_data", string(policyData))
 	return nil
 }
 
@@ -106,7 +164,7 @@ func resourceAccessPolicyRead(ctx context.Context, d *schema.ResourceData, meta 
 		return diag.FromErr(err)
 	}
 	d.Set("type", resp.Type)
-	d.Set("policy_data", policyData)
+	d.Set("policy_data", string(policyData))
 	return nil
 }
 
@@ -160,7 +218,7 @@ func resourceAccessPolicyUpdate(ctx context.Context, d *schema.ResourceData, met
 		return diag.FromErr(err)
 	}
 	d.Set("type", resp.Type)
-	d.Set("policy_data", policyData)
+	d.Set("policy_data", string(policyData))
 	return nil
 }
 

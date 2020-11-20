@@ -42,9 +42,6 @@ type NomadClusterServerServerJoin struct {
 }
 
 func (cluster *NomadCluster) FillDefaults() {
-	if cluster.BindAddr == "" {
-		cluster.BindAddr = "0.0.0.0"
-	}
 	if cluster.Ports.HTTP == 0 {
 		cluster.Ports.HTTP = 4646
 	}

@@ -2,6 +2,7 @@ package provider
 
 import (
 	"context"
+	"errors"
 
 	dadcorp "dadcorp.dev/client"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
@@ -16,6 +17,26 @@ func resourceTerraformWorkspace() *schema.Resource {
 		DeleteContext: resourceTerraformWorkspaceDelete,
 		Importer: &schema.ResourceImporter{
 			StateContext: schema.ImportStatePassthroughContext,
+		},
+		CustomizeDiff: func(ctx context.Context, diff *schema.ResourceDiff, meta interface{}) error {
+			em, ok := diff.Get("execution_mode").(string)
+			if !ok {
+				return errors.New("execution_mode must be a string")
+			}
+			if em != "remote" && em != "local" && em != "agent" {
+				return errors.New(`execution_mode must be "remote", "local", or "agent"`)
+			}
+			if em == "agent" {
+				return nil
+			}
+			api, ok := diff.Get("agent_pool_id").(string)
+			if !ok {
+				return errors.New("agent_pool_id must be a string")
+			}
+			if api != "" {
+				return errors.New(`agent_pool_id cannot be set unless execution_mode is set to "agent"`)
+			}
+			return nil
 		},
 		Schema: map[string]*schema.Schema{
 			"name": {
@@ -43,7 +64,6 @@ func resourceTerraformWorkspace() *schema.Resource {
 				Type:     schema.TypeString,
 				Optional: true,
 				Computed: true,
-				// TODO: validate
 			},
 			"file_triggers_enabled": {
 				Type:     schema.TypeBool,
@@ -154,8 +174,9 @@ func resourceTerraformWorkspaceCreate(ctx context.Context, d *schema.ResourceDat
 	d.Set("queue_all_runs", resp.QueueAllRuns)
 	d.Set("speculative_enabled", resp.SpeculativeEnabled)
 	d.Set("terraform_version", resp.TerraformVersion)
+	d.Set("trigger_prefixes", resp.TriggerPrefixes)
 	d.Set("working_directory", resp.WorkingDirectory)
-	d.Set("vsc_repo", []map[string]interface{}{
+	d.Set("vcs_repo", []map[string]interface{}{
 		{
 			"oauth_token_id":     resp.VCSRepo.OAuthTokenID,
 			"branch":             resp.VCSRepo.Branch,
@@ -189,8 +210,9 @@ func resourceTerraformWorkspaceRead(ctx context.Context, d *schema.ResourceData,
 	d.Set("queue_all_runs", resp.QueueAllRuns)
 	d.Set("speculative_enabled", resp.SpeculativeEnabled)
 	d.Set("terraform_version", resp.TerraformVersion)
+	d.Set("trigger_prefixes", resp.TriggerPrefixes)
 	d.Set("working_directory", resp.WorkingDirectory)
-	d.Set("vsc_repo", []map[string]interface{}{
+	d.Set("vcs_repo", []map[string]interface{}{
 		{
 			"oauth_token_id":     resp.VCSRepo.OAuthTokenID,
 			"branch":             resp.VCSRepo.Branch,
@@ -210,6 +232,7 @@ func resourceTerraformWorkspaceUpdate(ctx context.Context, d *schema.ResourceDat
 	fileTriggersEnabled := d.Get("file_triggers_enabled").(bool)
 	speculativeEnabled := d.Get("speculative_enabled").(bool)
 	workspace := dadcorp.TerraformWorkspace{
+		ID:                  d.Id(),
 		Name:                d.Get("name").(string),
 		AgentPoolID:         d.Get("agent_pool_id").(string),
 		AllowDestroyPlan:    &allowDestroyPlan,
@@ -248,8 +271,9 @@ func resourceTerraformWorkspaceUpdate(ctx context.Context, d *schema.ResourceDat
 	d.Set("queue_all_runs", resp.QueueAllRuns)
 	d.Set("speculative_enabled", resp.SpeculativeEnabled)
 	d.Set("terraform_version", resp.TerraformVersion)
+	d.Set("trigger_prefixes", resp.TriggerPrefixes)
 	d.Set("working_directory", resp.WorkingDirectory)
-	d.Set("vsc_repo", []map[string]interface{}{
+	d.Set("vcs_repo", []map[string]interface{}{
 		{
 			"oauth_token_id":     resp.VCSRepo.OAuthTokenID,
 			"branch":             resp.VCSRepo.Branch,

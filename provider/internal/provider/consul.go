@@ -22,6 +22,11 @@ func resourceConsulCluster() *schema.Resource {
 				Type:     schema.TypeString,
 				Required: true,
 			},
+			"bind_addr": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+			},
 			"addresses": {
 				Type:     schema.TypeList,
 				MaxItems: 1,
@@ -123,7 +128,8 @@ func resourceConsulClusterCreate(ctx context.Context, d *schema.ResourceData, me
 		return diag.FromErr(err)
 	}
 	cluster := dadcorp.ConsulCluster{
-		Name: d.Get("name").(string),
+		Name:     d.Get("name").(string),
+		BindAddr: d.Get("bind_addr").(string),
 	}
 	addresses := d.Get("addresses").([]interface{})
 	if len(addresses) > 0 {
@@ -160,6 +166,7 @@ func resourceConsulClusterCreate(ctx context.Context, d *schema.ResourceData, me
 	}
 	d.SetId(resp.ID)
 	d.Set("name", resp.Name)
+	d.Set("bind_addr", resp.BindAddr)
 	d.Set("addresses", []map[string]interface{}{
 		{
 			"dns":   resp.Addresses.DNS,
@@ -200,6 +207,7 @@ func resourceConsulClusterRead(ctx context.Context, d *schema.ResourceData, meta
 		return diag.FromErr(err)
 	}
 	d.Set("name", resp.Name)
+	d.Set("bind_addr", resp.BindAddr)
 	d.Set("addresses", []map[string]interface{}{
 		{
 			"dns":   resp.Addresses.DNS,
@@ -232,8 +240,9 @@ func resourceConsulClusterUpdate(ctx context.Context, d *schema.ResourceData, me
 		return diag.FromErr(err)
 	}
 	cluster := dadcorp.ConsulCluster{
-		ID:   d.Id(),
-		Name: d.Get("name").(string),
+		ID:       d.Id(),
+		Name:     d.Get("name").(string),
+		BindAddr: d.Get("bind_addr").(string),
 	}
 	addresses := d.Get("addresses").([]interface{})
 	if len(addresses) > 0 {
@@ -269,6 +278,7 @@ func resourceConsulClusterUpdate(ctx context.Context, d *schema.ResourceData, me
 		return diag.FromErr(err)
 	}
 	d.Set("name", resp.Name)
+	d.Set("bind_addr", resp.BindAddr)
 	d.Set("addresses", []map[string]interface{}{
 		{
 			"dns":   resp.Addresses.DNS,
