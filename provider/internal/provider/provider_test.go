@@ -1,15 +1,24 @@
 package provider
 
 import (
+	"context"
 	"os"
 	"testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-go/tfprotov5"
+	tfmux "github.com/hashicorp/terraform-plugin-mux"
 )
 
-var testProviders = map[string]func() (*schema.Provider, error){
-	"dadcorp": func() (*schema.Provider, error) {
-		return New(), nil
+var testProviders = map[string]func() (tfprotov5.ProviderServer, error){
+	"dadcorp": func() (tfprotov5.ProviderServer, error) {
+		ctx := context.Background()
+		sdkv2 := New().GRPCProvider
+
+		factory, err := tfmux.NewSchemaServerFactory(ctx, sdkv2)
+		if err != nil {
+			return nil, err
+		}
+		return factory.Server(), nil
 	},
 }
 

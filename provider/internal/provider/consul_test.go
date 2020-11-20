@@ -10,8 +10,8 @@ func TestAccConsulCluster_basic(t *testing.T) {
 	t.Parallel()
 
 	resource.Test(t, resource.TestCase{
-		ProviderFactories: testProviders,
-		PreCheck:          func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: testProviders,
+		PreCheck:                 func() { testAccPreCheck(t) },
 		Steps: []resource.TestStep{
 			{
 				Config: testAccConfigConsulCluster_basic(),

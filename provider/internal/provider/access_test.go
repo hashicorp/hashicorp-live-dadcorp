@@ -10,8 +10,8 @@ func TestAccAccessPolicy_consul(t *testing.T) {
 	t.Parallel()
 
 	resource.Test(t, resource.TestCase{
-		ProviderFactories: testProviders,
-		PreCheck:          func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: testProviders,
+		PreCheck:                 func() { testAccPreCheck(t) },
 		Steps: []resource.TestStep{
 			{
 				Config: testAccConfigAccessPolicy_consul_basic(),
@@ -71,8 +71,8 @@ func TestAccAccessPolicy_nomad(t *testing.T) {
 	t.Parallel()
 
 	resource.Test(t, resource.TestCase{
-		ProviderFactories: testProviders,
-		PreCheck:          func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: testProviders,
+		PreCheck:                 func() { testAccPreCheck(t) },
 		Steps: []resource.TestStep{
 			{
 				Config: testAccConfigAccessPolicy_nomad_basic(),
@@ -130,8 +130,8 @@ func TestAccAccessPolicy_terraform(t *testing.T) {
 	t.Parallel()
 
 	resource.Test(t, resource.TestCase{
-		ProviderFactories: testProviders,
-		PreCheck:          func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: testProviders,
+		PreCheck:                 func() { testAccPreCheck(t) },
 		Steps: []resource.TestStep{
 			{
 				Config: testAccConfigAccessPolicy_terraform_basic(),
@@ -189,8 +189,8 @@ func TestAccAccessPolicy_vault(t *testing.T) {
 	t.Parallel()
 
 	resource.Test(t, resource.TestCase{
-		ProviderFactories: testProviders,
-		PreCheck:          func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: testProviders,
+		PreCheck:                 func() { testAccPreCheck(t) },
 		Steps: []resource.TestStep{
 			{
 				Config: testAccConfigAccessPolicy_vault_basic(),
