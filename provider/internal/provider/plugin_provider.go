@@ -38,6 +38,7 @@ func (p *provider) GetProviderSchema(ctx context.Context, req *tfprotov5.GetProv
 		ResourceSchemas: map[string]*tfprotov5.Schema{
 			"dadcorp_terraform_workspace": (&terraform{}).schema(),
 			"dadcorp_vault_cluster":       (&vault{}).schema(),
+			"dadcorp_access_policy":       (&accessPolicy{}).schema(),
 		},
 		DataSourceSchemas: map[string]*tfprotov5.Schema{},
 	}, nil
@@ -147,6 +148,11 @@ func (p *provider) ValidateResourceTypeConfig(ctx context.Context, req *tfprotov
 			clients: p.clientFactory,
 		}
 		return res.ValidateResourceTypeConfig(ctx, req)
+	case "dadcorp_access_policy":
+		res := &accessPolicy{
+			clients: p.clientFactory,
+		}
+		return res.ValidateResourceTypeConfig(ctx, req)
 	}
 	return &tfprotov5.ValidateResourceTypeConfigResponse{
 		Diagnostics: []*tfprotov5.Diagnostic{
@@ -168,6 +174,11 @@ func (p *provider) UpgradeResourceState(ctx context.Context, req *tfprotov5.Upgr
 		return res.UpgradeResourceState(ctx, req)
 	case "dadcorp_vault_cluster":
 		res := &vault{
+			clients: p.clientFactory,
+		}
+		return res.UpgradeResourceState(ctx, req)
+	case "dadcorp_access_policy":
+		res := &accessPolicy{
 			clients: p.clientFactory,
 		}
 		return res.UpgradeResourceState(ctx, req)
@@ -195,6 +206,11 @@ func (p *provider) ReadResource(ctx context.Context, req *tfprotov5.ReadResource
 			clients: p.clientFactory,
 		}
 		return res.ReadResource(ctx, req)
+	case "dadcorp_access_policy":
+		res := &accessPolicy{
+			clients: p.clientFactory,
+		}
+		return res.ReadResource(ctx, req)
 	}
 	return &tfprotov5.ReadResourceResponse{
 		Diagnostics: []*tfprotov5.Diagnostic{
@@ -216,6 +232,11 @@ func (p *provider) PlanResourceChange(ctx context.Context, req *tfprotov5.PlanRe
 		return res.PlanResourceChange(ctx, req)
 	case "dadcorp_vault_cluster":
 		res := &vault{
+			clients: p.clientFactory,
+		}
+		return res.PlanResourceChange(ctx, req)
+	case "dadcorp_access_policy":
+		res := &accessPolicy{
 			clients: p.clientFactory,
 		}
 		return res.PlanResourceChange(ctx, req)
@@ -243,6 +264,11 @@ func (p *provider) ApplyResourceChange(ctx context.Context, req *tfprotov5.Apply
 			clients: p.clientFactory,
 		}
 		return res.ApplyResourceChange(ctx, req)
+	case "dadcorp_access_policy":
+		res := &accessPolicy{
+			clients: p.clientFactory,
+		}
+		return res.ApplyResourceChange(ctx, req)
 	}
 	return &tfprotov5.ApplyResourceChangeResponse{
 		Diagnostics: []*tfprotov5.Diagnostic{
@@ -264,6 +290,11 @@ func (p *provider) ImportResourceState(ctx context.Context, req *tfprotov5.Impor
 		return res.ImportResourceState(ctx, req)
 	case "dadcorp_vault_cluster":
 		res := &vault{
+			clients: p.clientFactory,
+		}
+		return res.ImportResourceState(ctx, req)
+	case "dadcorp_access_policy":
+		res := &accessPolicy{
 			clients: p.clientFactory,
 		}
 		return res.ImportResourceState(ctx, req)

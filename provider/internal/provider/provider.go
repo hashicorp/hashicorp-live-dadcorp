@@ -24,16 +24,9 @@ func New() *schema.Provider {
 			},
 		},
 		ResourcesMap: map[string]*schema.Resource{
-			"dadcorp_access_policy":  resourceAccessPolicy(),
 			"dadcorp_consul_cluster": resourceConsulCluster(),
 			"dadcorp_ip":             resourceIP(),
 			"dadcorp_nomad_cluster":  resourceNomadCluster(),
-		},
-		DataSourcesMap: map[string]*schema.Resource{
-			"dadcorp_access_policy_consul":    dataAccessPolicyConsul(),
-			"dadcorp_access_policy_nomad":     dataAccessPolicyNomad(),
-			"dadcorp_access_policy_terraform": dataAccessPolicyTerraform(),
-			"dadcorp_access_policy_vault":     dataAccessPolicyVault(),
 		},
 		ConfigureContextFunc: providerConfigure,
 	}
