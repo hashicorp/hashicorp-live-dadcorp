@@ -25,12 +25,6 @@ type Client struct {
 }
 
 func NewClient(baseURL, username, password string) (*Client, error) {
-	if username == "" {
-		return nil, fmt.Errorf("username must be set")
-	}
-	if password == "" {
-		return nil, fmt.Errorf("password must be set")
-	}
 	base, err := url.Parse(baseURL)
 	if err != nil {
 		return nil, err
@@ -60,7 +54,9 @@ func (c Client) NewRequest(ctx context.Context, method, path string, body io.Rea
 	if err != nil {
 		return nil, err
 	}
-	req.SetBasicAuth(c.username, c.password)
+	if c.username != "" && c.password != "" {
+		req.SetBasicAuth(c.username, c.password)
+	}
 	req.Header.Set("Content-Type", "application/json")
 	req.Header.Set("Accept", "application/json")
 	return req, nil

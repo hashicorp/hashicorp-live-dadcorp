@@ -29,7 +29,7 @@ func New() *schema.Provider {
 			"dadcorp_ip":                  resourceIP(),
 			"dadcorp_nomad_cluster":       resourceNomadCluster(),
 			"dadcorp_terraform_workspace": resourceTerraformWorkspace(),
-			"dadcorp_vault_cluster":       resourceVaultCluster(),
+			//"dadcorp_vault_cluster":       resourceVaultCluster(),
 		},
 		DataSourcesMap: map[string]*schema.Resource{
 			"dadcorp_access_policy_consul":    dataAccessPolicyConsul(),

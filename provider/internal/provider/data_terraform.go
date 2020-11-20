@@ -3,7 +3,6 @@ package provider
 import (
 	"context"
 	"encoding/json"
-	"log"
 
 	dadcorp "dadcorp.dev/client"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
@@ -48,7 +47,6 @@ func dataAccessPolicyTerraformRead(ctx context.Context, d *schema.ResourceData, 
 		Apply:            d.Get("apply").(bool),
 		OverridePolicies: d.Get("override_policies").(bool),
 	}
-	log.Printf("[TRACE] paddy: %+v", policy)
 	b, err := json.Marshal(policy)
 	if err != nil {
 		return diag.FromErr(err)

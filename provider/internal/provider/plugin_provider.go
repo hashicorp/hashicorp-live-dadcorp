@@ -14,8 +14,7 @@ func NewPlugin() tfprotov5.ProviderServer {
 }
 
 type provider struct {
-	username string
-	password string
+	clientFactory clientFactory
 }
 
 func (p *provider) GetProviderSchema(ctx context.Context, req *tfprotov5.GetProviderSchemaRequest) (*tfprotov5.GetProviderSchemaResponse, error) {
@@ -36,7 +35,9 @@ func (p *provider) GetProviderSchema(ctx context.Context, req *tfprotov5.GetProv
 				},
 			},
 		},
-		ResourceSchemas:   map[string]*tfprotov5.Schema{},
+		ResourceSchemas: map[string]*tfprotov5.Schema{
+			"dadcorp_vault_cluster": (&vault{}).schema(),
+		},
 		DataSourceSchemas: map[string]*tfprotov5.Schema{},
 	}, nil
 }
@@ -54,6 +55,7 @@ func (p *provider) ConfigureProvider(ctx context.Context, req *tfprotov5.Configu
 			"password": tftypes.String,
 		},
 	}
+	var client clientFactory
 	val, err := req.Config.Unmarshal(configType)
 	if err != nil {
 		return &tfprotov5.ConfigureProviderResponse{
@@ -80,7 +82,7 @@ func (p *provider) ConfigureProvider(ctx context.Context, req *tfprotov5.Configu
 		}, err
 	}
 	if values["username"].IsKnown() && !values["username"].IsNull() {
-		err = values["username"].As(&p.username)
+		err = values["username"].As(&client.username)
 		if err != nil {
 			return &tfprotov5.ConfigureProviderResponse{
 				Diagnostics: []*tfprotov5.Diagnostic{
@@ -99,7 +101,7 @@ func (p *provider) ConfigureProvider(ctx context.Context, req *tfprotov5.Configu
 		}
 	}
 	if values["password"].IsKnown() && !values["password"].IsNull() {
-		err = values["password"].As(&p.password)
+		err = values["password"].As(&client.password)
 		if err != nil {
 			return &tfprotov5.ConfigureProviderResponse{
 				Diagnostics: []*tfprotov5.Diagnostic{
@@ -118,11 +120,12 @@ func (p *provider) ConfigureProvider(ctx context.Context, req *tfprotov5.Configu
 		}
 	}
 	if os.Getenv("DADCORP_USERNAME") != "" {
-		p.username = os.Getenv("DADCORP_USERNAME")
+		client.username = os.Getenv("DADCORP_USERNAME")
 	}
 	if os.Getenv("DADCORP_PASSWORD") != "" {
-		p.password = os.Getenv("DADCORP_PASSWORD")
+		client.password = os.Getenv("DADCORP_PASSWORD")
 	}
+	p.clientFactory = client
 	return &tfprotov5.ConfigureProviderResponse{}, nil
 }
 
@@ -133,6 +136,11 @@ func (p *provider) StopProvider(ctx context.Context, req *tfprotov5.StopProvider
 // resource methods
 func (p *provider) ValidateResourceTypeConfig(ctx context.Context, req *tfprotov5.ValidateResourceTypeConfigRequest) (*tfprotov5.ValidateResourceTypeConfigResponse, error) {
 	switch req.TypeName {
+	case "dadcorp_vault_cluster":
+		res := &vault{
+			clients: p.clientFactory,
+		}
+		return res.ValidateResourceTypeConfig(ctx, req)
 	}
 	return &tfprotov5.ValidateResourceTypeConfigResponse{
 		Diagnostics: []*tfprotov5.Diagnostic{
@@ -147,6 +155,11 @@ func (p *provider) ValidateResourceTypeConfig(ctx context.Context, req *tfprotov
 
 func (p *provider) UpgradeResourceState(ctx context.Context, req *tfprotov5.UpgradeResourceStateRequest) (*tfprotov5.UpgradeResourceStateResponse, error) {
 	switch req.TypeName {
+	case "dadcorp_vault_cluster":
+		res := &vault{
+			clients: p.clientFactory,
+		}
+		return res.UpgradeResourceState(ctx, req)
 	}
 	return &tfprotov5.UpgradeResourceStateResponse{
 		Diagnostics: []*tfprotov5.Diagnostic{
@@ -161,6 +174,11 @@ func (p *provider) UpgradeResourceState(ctx context.Context, req *tfprotov5.Upgr
 
 func (p *provider) ReadResource(ctx context.Context, req *tfprotov5.ReadResourceRequest) (*tfprotov5.ReadResourceResponse, error) {
 	switch req.TypeName {
+	case "dadcorp_vault_cluster":
+		res := &vault{
+			clients: p.clientFactory,
+		}
+		return res.ReadResource(ctx, req)
 	}
 	return &tfprotov5.ReadResourceResponse{
 		Diagnostics: []*tfprotov5.Diagnostic{
@@ -175,6 +193,11 @@ func (p *provider) ReadResource(ctx context.Context, req *tfprotov5.ReadResource
 
 func (p *provider) PlanResourceChange(ctx context.Context, req *tfprotov5.PlanResourceChangeRequest) (*tfprotov5.PlanResourceChangeResponse, error) {
 	switch req.TypeName {
+	case "dadcorp_vault_cluster":
+		res := &vault{
+			clients: p.clientFactory,
+		}
+		return res.PlanResourceChange(ctx, req)
 	}
 	return &tfprotov5.PlanResourceChangeResponse{
 		Diagnostics: []*tfprotov5.Diagnostic{
@@ -189,6 +212,11 @@ func (p *provider) PlanResourceChange(ctx context.Context, req *tfprotov5.PlanRe
 
 func (p *provider) ApplyResourceChange(ctx context.Context, req *tfprotov5.ApplyResourceChangeRequest) (*tfprotov5.ApplyResourceChangeResponse, error) {
 	switch req.TypeName {
+	case "dadcorp_vault_cluster":
+		res := &vault{
+			clients: p.clientFactory,
+		}
+		return res.ApplyResourceChange(ctx, req)
 	}
 	return &tfprotov5.ApplyResourceChangeResponse{
 		Diagnostics: []*tfprotov5.Diagnostic{
@@ -203,6 +231,11 @@ func (p *provider) ApplyResourceChange(ctx context.Context, req *tfprotov5.Apply
 
 func (p *provider) ImportResourceState(ctx context.Context, req *tfprotov5.ImportResourceStateRequest) (*tfprotov5.ImportResourceStateResponse, error) {
 	switch req.TypeName {
+	case "dadcorp_vault_cluster":
+		res := &vault{
+			clients: p.clientFactory,
+		}
+		return res.ImportResourceState(ctx, req)
 	}
 	return &tfprotov5.ImportResourceStateResponse{
 		Diagnostics: []*tfprotov5.Diagnostic{

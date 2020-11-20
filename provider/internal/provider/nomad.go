@@ -3,7 +3,6 @@ package provider
 import (
 	"context"
 	"errors"
-	"log"
 
 	dadcorp "dadcorp.dev/client"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
@@ -28,7 +27,6 @@ func resourceNomadCluster() *schema.Resource {
 			if bindAddr == "" {
 				return nil
 			}
-			log.Println("[DEBUG]", "paddy test", bindAddr)
 			_, advertiseList := diff.GetChange("advertise")
 			advertise := advertiseList.([]interface{})
 			if len(advertise) < 1 {
